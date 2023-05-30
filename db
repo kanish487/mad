@@ -1,0 +1,89 @@
+package com.example.database;
+
+import android.app.Activity;
+import android.app.AlertDialog.Builder;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+
+public class MainActivity extends Activity implements OnClickListener {
+    EditText Name, Course, EnrolmentDate;
+    Button Insert, View;
+    SQLiteDatabase db;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Name = findViewById(R.id.Rollno);
+        Course = findViewById(R.id.Name);
+        EnrolmentDate = findViewById(R.id.Marks);
+        Insert = findViewById(R.id.Insert);
+        View = findViewById(R.id.View);
+
+        Insert.setOnClickListener(this);
+        View.setOnClickListener(this);
+
+        // Creating database and table
+        db = openOrCreateDatabase("StudentDB", Context.MODE_PRIVATE, null);
+        db.execSQL("CREATE TABLE IF NOT EXISTS student(Name TEXT, Course TEXT, EnrolmentDate TEXT); ");
+    }
+
+    public void onClick(View view) {
+        // Inserting a record into the Student table
+        if (view == Insert) {
+            String name = Name.getText().toString().trim();
+            String course = Course.getText().toString().trim();
+            String enrolmentDate = EnrolmentDate.getText().toString().trim();
+
+            // Checking for empty fields
+            if (name.isEmpty() || course.isEmpty() || enrolmentDate.isEmpty()) {
+                showMessage("Error", "Please enter all values");
+                return;
+            }
+
+            String query = "INSERT INTO student VALUES('" + name + "','" + course + "','" + enrolmentDate + "');";
+            db.execSQL(query);
+            showMessage("Success", "Course Enrolled Successfully!\n Congrats!");
+            clearText();
+        }
+
+        // Displaying all the records from the Student table
+        if (view == View) {
+            Cursor cursor = db.rawQuery("SELECT * FROM student", null);
+            if (cursor.getCount() == 0) {
+                showMessage("Error", "No records found");
+                return;
+            }
+
+            StringBuilder buffer = new StringBuilder();
+            while (cursor.moveToNext()) {
+                buffer.append("Name: ").append(cursor.getString(0)).append("\n");
+                buffer.append("Course: ").append(cursor.getString(1)).append("\n");
+                buffer.append("Enrollment Date: ").append(cursor.getString(2)).append("\n\n");
+            }
+            showMessage("COURSE REGISTRATION DETAILS", buffer.toString());
+        }
+    }
+
+    public void showMessage(String title, String message) {
+        Builder builder = new Builder(this);
+        builder.setCancelable(true);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.show();
+    }
+
+    public void clearText() {
+        Name.getText().clear();
+        Course.getText().clear();
+        EnrolmentDate.getText().clear();
+        Name.requestFocus();
+    }
+}
