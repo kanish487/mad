@@ -1,0 +1,48 @@
+package com.example.compoundinterestcalculator;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    private EditText editTextPrincipal, editTextRate, editTextTime, editTextCompound;
+    private TextView textViewResult;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        editTextPrincipal = findViewById(R.id.editTextPrincipal);
+        editTextRate = findViewById(R.id.editTextRate);
+        editTextTime = findViewById(R.id.editTextTime);
+        editTextCompound = findViewById(R.id.editTextCompound);
+        textViewResult = findViewById(R.id.textViewResult);
+
+        Button buttonCalculate = findViewById(R.id.buttonCalculate);
+
+        buttonCalculate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                calculateCompoundInterest();
+            }
+        });
+    }
+
+    private void calculateCompoundInterest() {
+        double principal = Double.parseDouble(editTextPrincipal.getText().toString());
+        double rate = Double.parseDouble(editTextRate.getText().toString());
+        double time = Double.parseDouble(editTextTime.getText().toString());
+        int compoundFrequency = Integer.parseInt(editTextCompound.getText().toString());
+
+        double interest = principal * Math.pow((1 + (rate / (compoundFrequency * 100))), (compoundFrequency * time));
+        double totalAmount = principal + interest;
+
+        String result = "Compound Interest: " + interest + "\nTotal Amount: " + totalAmount;
+        textViewResult.setText(result);
+    }
